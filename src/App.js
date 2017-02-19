@@ -16,6 +16,7 @@ class App extends Component {
     this.state = {
       result: null,
       searchTerm: DEFAULT_QUERY,
+      isLoading: false, 
     };
 
     this.setSearchTopstories = this.setSearchTopstories.bind(this);
@@ -55,11 +56,14 @@ class App extends Component {
     ];
 
     this.setState({
-      result: { hits: updatedHits, page }
+      result: { hits: updatedHits, page },
+      isLoading: false
     });
   }
 
   fetchSearchTopstories(searchTerm, page) {
+    this.setState({ isLoading: true });
+
     fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}`)
       .then(response => response.json())
       .then(result => this.setSearchTopstories(result));
@@ -71,7 +75,7 @@ class App extends Component {
   }
 
   render() {
-    const { searchTerm, result } = this.state;
+    const { searchTerm, result, isLoading } = this.state;
     const page = ( result && result.page ) || 0;
 
     return (
@@ -90,9 +94,12 @@ class App extends Component {
           onDismiss={this.onDismiss}
         /> }
         <div className="interactions">
-          <Button onClick={() => this.fetchSearchTopstories(searchTerm, page + 1)}>
-            More
-          </Button>
+          { isLoading 
+            ? <Loading /> 
+            : <Button onClick={() => this.fetchSearchTopstories(searchTerm, page + 1)}>
+                More
+              </Button>
+          }
         </div>
       </div>
     );
@@ -124,6 +131,9 @@ const Button = ({ onClick, children }) =>
       {children}
   </button>
 
+const Loading = () =>
+  <div>Loading...</div>
+
 const Table = ({ list, pattern, onDismiss }) =>
   <div className="table">
     { list.map(item =>
@@ -152,5 +162,6 @@ export default App;
 export {
   Button,
   Search,
+  Loading,
   Table
 };
