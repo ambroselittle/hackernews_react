@@ -26,6 +26,7 @@ class App extends Component {
       searchTerm: DEFAULT_QUERY,
       isLoading: false, 
       sortKey: 'NONE',
+      isSortReverse: false, 
     };
 
     this.setSearchTopstories = this.setSearchTopstories.bind(this);
@@ -54,7 +55,8 @@ class App extends Component {
   }
 
   onSort(sortKey) {
-    this.setState({ sortKey: sortKey });
+    const isSortReverse = this.state.sortKey === sortKey && !this.state.isSortReverse;
+    this.setState({ sortKey, isSortReverse });
   }
 
   setSearchTopstories(result) {
@@ -89,7 +91,7 @@ class App extends Component {
   }
 
   render() {
-    const { searchTerm, result, isLoading, sortKey } = this.state;
+    const { searchTerm, result, isLoading, sortKey, isSortReverse } = this.state;
     const page = ( result && result.page ) || 0;
 
     return (
@@ -105,6 +107,7 @@ class App extends Component {
         <Table
           list={result.hits}
           sortKey={sortKey}
+          isSortReverse={isSortReverse}
           onSort={this.onSort}
           onDismiss={this.onDismiss}
         /> }
@@ -157,9 +160,16 @@ const Loading = () =>
 const Table = ({
   list,
   sortKey,
+  isSortReverse,
   onSort,
   onDismiss
-}) =>
+}) => {
+  const sortedList = SORTS[sortKey](list);
+  const reverseSortedList = isSortReverse 
+    ? sortedList.reverse()
+    : sortedList; 
+  
+  return (
   <div className="table">
     <div className="table-header">
       <span style={{ width: '40%' }}>
@@ -198,7 +208,7 @@ const Table = ({
         Archive
       </span>
     </div>
-    { SORTS[sortKey](list).map(item =>
+    { reverseSortedList.map(item =>
       <div key={item.objectID} className="table-row">
         <span style={{ width: '40%' }}>
           <a href={item.url}>{item.title}</a>
@@ -217,7 +227,8 @@ const Table = ({
         </span>
       </div>
     )}
-  </div>
+  </div>);
+}
 
 export default App;
 
