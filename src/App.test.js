@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import renderer from 'react-test-renderer';
 import { shallow } from 'enzyme';
-import App, { Search, Button, Table, Loading } from './App';
+import App, { Search, Button, Sort, Table, Loading } from './App';
 
 describe('App', () => {
   it('renders', () => {
@@ -43,6 +43,23 @@ describe('Button', () => {
   });
 });
 
+describe('Sort', () => {
+  const props = {
+    sortKey: 'NONE'
+  };
+
+  it('renders', () => {
+    const div = document.createElement('div');
+    ReactDOM.render(<Sort {...props}>Sort</Sort>, div);
+  });
+
+  test('snapshots', () => {
+    const component = renderer.create(<Sort {...props}>Sort</Sort>);
+    let tree = component.toJSON();
+    expect(tree).toMatchSnapshot();
+  });
+});
+
 describe('Loading', () => {
   it('renders', () => {
     const div = document.createElement('div');
@@ -62,6 +79,7 @@ describe('Table', () => {
       { title: '1', author: '1', num_comments: 1, points: 2, objectID: 'y' },
       { title: '2', author: '2', num_comments: 1, points: 2, objectID: 'z' },
     ],
+    sortKey: 'NONE'
   };
 
   it('renders', () => {
