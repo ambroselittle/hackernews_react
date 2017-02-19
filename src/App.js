@@ -148,3 +148,9 @@ const Table = ({ list, pattern, onDismiss }) =>
   </div>
 
 export default App;
+
+export {
+  Button,
+  Search,
+  Table
+};
