@@ -1,4 +1,4 @@
-# Simple React Hackernews Search Sample 
+# Simple React Hacker News Search Sample 
 [Demo on Heroku](https://pure-anchorage-37170.herokuapp.com/ )
 
 ## Contributing/Setup
