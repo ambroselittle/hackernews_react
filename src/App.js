@@ -26,8 +26,6 @@ class App extends Component {
       result: null,
       searchTerm: DEFAULT_QUERY,
       isLoading: false, 
-      sortKey: 'NONE',
-      isSortReverse: false, 
     };
 
     this.setSearchTopstories = this.setSearchTopstories.bind(this);
@@ -35,7 +33,6 @@ class App extends Component {
     this.onDismiss = this.onDismiss.bind(this);
     this.onSearchChange = this.onSearchChange.bind(this);
     this.onSearchSubmit = this.onSearchSubmit.bind(this);
-    this.onSort = this.onSort.bind(this);
   }
 
   onDismiss(id) {
@@ -53,11 +50,6 @@ class App extends Component {
   onSearchSubmit(event) {
     this.fetchSearchTopstories(this.state.searchTerm, DEFAULT_PAGE);
     event.preventDefault();
-  }
-
-  onSort(sortKey) {
-    const isSortReverse = this.state.sortKey === sortKey && !this.state.isSortReverse;
-    this.setState({ sortKey, isSortReverse });
   }
 
   setSearchTopstories(result) {
@@ -92,7 +84,7 @@ class App extends Component {
   }
 
   render() {
-    const { searchTerm, result, isLoading, sortKey, isSortReverse } = this.state;
+    const { searchTerm, result, isLoading } = this.state;
     const page = ( result && result.page ) || 0;
 
     return (
@@ -107,9 +99,6 @@ class App extends Component {
         { result && 
         <Table
           list={result.hits}
-          sortKey={sortKey}
-          isSortReverse={isSortReverse}
-          onSort={this.onSort}
           onDismiss={this.onDismiss}
         /> }
         <div className="interactions">
@@ -165,81 +154,103 @@ const Sort = ({ sortKey, activeSortKey, onSort, children }) => {
 const Loading = () =>
   <div>Loading...</div>
 
-const Table = ({
-  list,
-  sortKey,
-  isSortReverse,
-  onSort,
-  onDismiss
-}) => {
-  const sortedList = SORTS[sortKey](list);
-  const reverseSortedList = isSortReverse 
-    ? sortedList.reverse()
-    : sortedList; 
-  
-  return (
-  <div className="table">
-    <div className="table-header">
-      <span style={{ width: '40%' }}>
-        <Sort
-          sortKey={'TITLE'}
-          activeSortKey={sortKey}
-          onSort={onSort}
-        >
-          Title
-        </Sort>
-      </span>
-      <span style={{ width: '30%' }}>
-        <Sort
-          sortKey={'AUTHOR'}
-          activeSortKey={sortKey}
-          onSort={onSort}
-        >
-          Author
-        </Sort>
-      </span>
-      <span style={{ width: '10%' }}>
-        <Sort
-          sortKey={'COMMENTS'}
-          activeSortKey={sortKey}
-          onSort={onSort}
-        >
-          Comments
-        </Sort>
-      </span>
-      <span style={{ width: '10%' }}>
-        <Sort
-          sortKey={'POINTS'}
-          activeSortKey={sortKey}
-          onSort={onSort}
-        >
-          Points
-        </Sort>
-      </span>
-      <span style={{ width: '10%' }}>
-        Archive
-      </span>
-    </div>
-    { reverseSortedList.map(item =>
-      <div key={item.objectID} className="table-row">
+class Table extends Component { 
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      sortKey: 'NONE',
+      isSortReverse: false, 
+    };
+
+    this.onSort = this.onSort.bind(this);
+  }
+
+  onSort(sortKey) {
+    const isSortReverse = this.state.sortKey === sortKey && !this.state.isSortReverse;
+    this.setState({ sortKey, isSortReverse });
+  }
+
+  render() {
+    const {
+      list,
+      onDismiss
+    } = this.props;
+
+    const {
+        sortKey,
+        isSortReverse    
+    } = this.state;
+    
+    const sortedList = SORTS[sortKey](list);
+    const reverseSortedList = isSortReverse 
+      ? sortedList.reverse()
+      : sortedList; 
+    
+    return (
+    <div className="table">
+      <div className="table-header">
         <span style={{ width: '40%' }}>
-          <a href={item.url}>{item.title}</a>
+          <Sort
+            sortKey={'TITLE'}
+            activeSortKey={sortKey}
+            onSort={this.onSort}
+          >
+            Title
+          </Sort>
         </span>
         <span style={{ width: '30%' }}>
-          {item.author}
+          <Sort
+            sortKey={'AUTHOR'}
+            activeSortKey={sortKey}
+            onSort={this.onSort}
+          >
+            Author
+          </Sort>
         </span>
         <span style={{ width: '10%' }}>
-          {item.num_comments}
+          <Sort
+            sortKey={'COMMENTS'}
+            activeSortKey={sortKey}
+            onSort={this.onSort}
+          >
+            Comments
+          </Sort>
         </span>
         <span style={{ width: '10%' }}>
-          {item.points}
+          <Sort
+            sortKey={'POINTS'}
+            activeSortKey={sortKey}
+            onSort={this.onSort}
+          >
+            Points
+          </Sort>
         </span>
         <span style={{ width: '10%' }}>
-          <Button onClick={() => onDismiss(item.objectID)}>Dismiss</Button>
+          Archive
         </span>
       </div>
-    )}
-  </div>);
+      { reverseSortedList.map(item =>
+        <div key={item.objectID} className="table-row">
+          <span style={{ width: '40%' }}>
+            <a href={item.url}>{item.title}</a>
+          </span>
+          <span style={{ width: '30%' }}>
+            {item.author}
+          </span>
+          <span style={{ width: '10%' }}>
+            {item.num_comments}
+          </span>
+          <span style={{ width: '10%' }}>
+            {item.points}
+          </span>
+          <span style={{ width: '10%' }}>
+            <Button onClick={() => onDismiss(item.objectID)}>Dismiss</Button>
+          </span>
+        </div>
+      )}
+    </div>);
+  }
 }
 
 export default App;
