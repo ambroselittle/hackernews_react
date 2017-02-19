@@ -106,7 +106,7 @@ const Search = ({
   children
 }) =>
   <form onSubmit={onSubmit}>
-    <input
+    Search Hacker News: <input
       type="text"
       value={value}
       onChange={onChange}
